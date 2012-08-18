@@ -34,6 +34,10 @@ This is offered under a BSD-style license. This means you can use the code for w
 	#include <sys/xattr.h>
 #endif
 
+#ifdef F_FULLFSYNC
+/* this is a Mac OS X system which does not implement fdatasync as such */
+#define fdatasync(f) fcntl(f, F_FULLFSYNC)
+#endif
 
 #include "userModeFS.h"
 
@@ -225,7 +229,12 @@ static int userModeFS_mknod(const char *path, mode_t mode, dev_t rdev) {
 	char p[PATHLEN_MAX];
 	snprintf(p, PATHLEN_MAX, "%s%s", root, path);
 	if(monitor)mprintf("make node: %s, mode=%x, dev=%x",path,mode,rdev);
+    #ifdef __APPLE__
+    #warning "Substituting creat for mknod - limited functionality"
+    int res = creat(p, mode);
+    #else
 	int res = mknod(p, mode, rdev);
+    #endif
 	if (res == -1) {
 		res=errno;
 		if(monitor)mprintf(" res=%x\n",res);

@@ -2,8 +2,7 @@
 
 [ -z ${CC} ] && CC=gcc
 
-CFLAGS="${CFLAGS:--Wall}"
-CPPFLAGS="${CPPFLAGS} -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DFUSE_USE_VERSION=26"
-LDFLAGS="${LDFLAGS} -lfuse"
+CFLAGS="${CFLAGS:--Wall} $(pkg-config --cflags fuse)"
+LDFLAGS="${LDFLAGS} $(pkg-config --libs fuse)"
 
-${CC} ${CPPFLAGS} ${CFLAGS} ${LDFLAGS} -o passfs *.c "$@"
+${CC} ${CFLAGS} ${CPPFLAGS}  ${LDFLAGS} -o passfs *.c "$@"
